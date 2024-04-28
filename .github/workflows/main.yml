@@ -17,7 +17,9 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Install Hysteria
-      run: sudo bash <(curl -fsSL https://get.hy2.sh/)
+      run: curl -fsSL https://get.hy2.sh/ -o downloaded_script.sh
+      run: sudo bash downloaded_script.sh
+
 
     - name: Configure Hysteria
       run: |
