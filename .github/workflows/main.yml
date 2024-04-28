@@ -25,9 +25,9 @@ jobs:
     - name: Configure Hysteria
       run: |
         sudo systemctl stop hysteria-server.service
-        openssl ecparam -name prime256v1 -out temp_param.pem
-        openssl req -x509 -nodes -newkey ec:temp_param.pem -keyout /etc/hysteria/server.key -out /etc/hysteria/server.crt -subj "/CN=bing.com" -days 36500
-        rm temp_param.pem
+        sudo openssl ecparam -name prime256v1 -out temp_param.pem
+        sudo openssl req -x509 -nodes -newkey ec:temp_param.pem -keyout /etc/hysteria/server.key -out /etc/hysteria/server.crt -subj "/CN=bing.com" -days 36500
+        sudo rm temp_param.pem
         sudo chown hysteria /etc/hysteria/server.key
         sudo chown hysteria /etc/hysteria/server.crt
         sudo echo -e "listen: 127.0.0.1:25801\n\ntls:\n  cert: /etc/hysteria/server.crt\n  key: /etc/hysteria/server.key\n\nauth:\n  type: password\n  password: Aa2980688\n\nmasquerade:\n  type: proxy\n  proxy:\n    url: https://bing.com\n    rewriteHost: true" > /etc/hysteria/config.yml
