@@ -16,11 +16,6 @@ jobs:
     - name: Check out repository code
       uses: actions/checkout@v3
 
-    - name: Update and install required packages
-      run: |
-        sudo apt-get update -y
-        sudo apt-get install -y systemctl openssl tar wget
-
     - name: Install Hysteria
       run: sudo bash <(curl -fsSL https://get.hy2.sh/)
 
