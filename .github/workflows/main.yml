@@ -33,7 +33,7 @@ jobs:
 
       - name: Configure Hysteria
         run: |
-          sudo bash -c 'cat << EOF > /etc/hysteria/config.yaml
+          sudo bash -c 'cat <<EOF > /etc/hysteria/config.yaml
 listen: 127.0.0.1:25801
 tls:
   cert: /etc/hysteria/server.crt
