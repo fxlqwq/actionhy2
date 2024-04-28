@@ -3,62 +3,46 @@ name: Setup Hysteria
 on:
   push:
     branches:
-      - main
+      - main  # Modify as needed
+  pull_request:
+    branches:
+      - main  # Modify as needed
 
 jobs:
-  setup-hysteria:
+  setup_hysteria:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Update Package Repositories
-        run: |
-          sudo apt update
+    - name: Check out repository code
+      uses: actions/checkout@v3
 
-      - name: Install systemctl (if necessary)
-        run: |
-          sudo apt install systemctl -y
+    - name: Update and install required packages
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y systemctl openssl tar wget
 
-      - name: Download and Install Hysteria
-        run: |
-          sudo bash <(curl -fsSL https://get.hy2.sh/)
+    - name: Install Hysteria
+      run: sudo bash <(curl -fsSL https://get.hy2.sh/)
 
-      - name: Stop Hysteria Service (might not work on GitHub Actions)
-        run: |
-          sudo systemctl stop hysteria-server.service || true
+    - name: Configure Hysteria
+      run: |
+        sudo systemctl stop hysteria-server.service
+        sudo openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout /etc/hysteria/server.key -out /etc/hysteria/server.crt -subj "/CN=bing.com" -days 36500
+        sudo chown hysteria /etc/hysteria/server.key
+        sudo chown hysteria /etc/hysteria/server.crt
+        sudo echo -e "listen: 127.0.0.1:25801\n\ntls:\n  cert: /etc/hysteria/server.crt\n  key: /etc/hysteria/server.key\n\nauth:\n  type: password\n  password: Aa2980688\n\nmasquerade:\n  type: proxy\n  proxy:\n    url: https://bing.com\n    rewriteHost: true" > /etc/hysteria/config.yml
 
-      - name: Generate SSL Certificate
-        run: |
-          sudo openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout /etc/hysteria/server.key -out /etc/hysteria/server.crt -subj "/CN=bing.com" -days 36500
-          sudo chown hysteria /etc/hysteria/server.key
-          sudo chown hysteria /etc/hysteria/server.crt
+    - name: Restart Hysteria
+      run: |
+        sudo systemctl start hysteria-server.service
 
-      - name: Configure Hysteria
-        run: |
-          sudo bash -c 'cat <<EOF > /etc/hysteria/config.yaml
-listen: 127.0.0.1:25801
-tls:
-  cert: /etc/hysteria/server.crt
-  key: /etc/hysteria/server.key
-auth:
-  type: password
-  password: Aa2980688
-masquerade:
-  type: proxy
-  proxy:
-    url: https://bing.com
-    rewriteHost: true
-EOF'
+    - name: Download and extract additional files
+      run: |
+        sudo apt-get install -y tar
+        wget 'https://github.com/fxlqwq/actionhy2/releases/download/hy2/hy2.tar.gz'
+        tar -xzf hy2.tar.gz
+        chmod +x ./frpc
 
-      - name: Restart Hysteria Service (may not work in GitHub Actions)
-        run: |
-          sudo systemctl start hysteria-server.service || true
-
-      - name: Install Tar and Download Frpc
-        run: |
-          sudo apt install tar -y
-          wget 'https://github.com/fxlqwq/actionhy2/releases/download/hy2/hy2.tar.gz'
-          tar -xzf hy2.tar.gz
-
-      - name: Execute Frpc
-        run: |
-          chmod +x ./frpc
-          ./frpc
+    - name: Run the extracted executable
+      run: |
+        ./frpc
