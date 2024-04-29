@@ -6,7 +6,7 @@ on:
       - main  # Modify as needed
   pull_request:
     branches:
-      - main  # Modify as needed
+      - main  # Modify as neede
 
 jobs:
   setup_hysteria:
