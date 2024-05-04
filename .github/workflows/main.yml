@@ -3,7 +3,7 @@ name: Setup Hysteria
 on:
   push:
     branches:
-      - main  # Modify as needed
+      - main  # Modify as neede
   pull_request:
     branches:
       - main  # Modify as neede
